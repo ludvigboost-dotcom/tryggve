@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Defense tech-karta USA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="panel">
+    <h1>Defense tech-karta</h1>
+    <p class="hint">Fokus på hårdvaruproduktion. Uppskattningar, verifiera innan användning.</p>
+
+    <section>
+      <h2>Kategori <span class="hint">(OR)</span></h2>
+      <label><input type="checkbox" class="tag" value="production" checked> Produktionsteknik</label>
+      <label><input type="checkbox" class="tag" value="ai" checked> AI</label>
+      <label><input type="checkbox" class="tag" value="weapons" checked> Vapen</label>
+      <label><input type="checkbox" class="tag" value="aerospace" checked> Flyg</label>
+    </section>
+
+    <section>
+      <h2>Årlig omsättning <span class="hint">(est.)</span></h2>
+      <label><input type="checkbox" class="band" value="<10m" checked> &lt;$10M</label>
+      <label><input type="checkbox" class="band" value="10-100m" checked> $10–100M</label>
+      <label><input type="checkbox" class="band" value="100m-1b" checked> $100M–1B</label>
+      <label><input type="checkbox" class="band" value=">1b" checked> &gt;$1B</label>
+    </section>
+
+    <section>
+      <label><input type="checkbox" id="adjacent" checked> Visa näraliggande (SendCutSend m.fl.)</label>
+    </section>
+
+    <section>
+      <h2>Zooma till region</h2>
+      <div class="regions">
+        <button data-region="usa">Hela USA</button>
+        <button data-region="west">Västkusten</button>
+        <button data-region="south">Texas/Syd</button>
+        <button data-region="midwest">Mellanvästern</button>
+        <button data-region="east">Östkusten</button>
+        <button data-region="southeast">Sydöst</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Mässor och konferenser</h2>
+      <label><input type="checkbox" id="show-events" checked> Visa mässor på kartan</label>
+      <p class="hint">Mässor påverkas inte av filtren ovan.</p>
+      <ul id="events" class="items"></ul>
+    </section>
+
+    <p class="count"><span id="count">0</span> bolag visas</p>
+    <ul id="list" class="items"></ul>
+  </aside>
+
+  <main id="map"></main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
