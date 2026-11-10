@@ -115,7 +115,11 @@ map.fitBounds(REGIONS.usa);
 const markerLayer = L.layerGroup().addTo(map);
 const countEl = document.getElementById("count");
 const listEl = document.getElementById("list");
-const adjacentEl = document.getElementById("adjacent");
+const bandMinEl = document.getElementById("band-min");
+const bandMaxEl = document.getElementById("band-max");
+const bandFillEl = document.getElementById("band-fill");
+const bandLabelEls = [...document.querySelectorAll("#band-labels span")];
+const BAND_ORDER = Object.keys(BAND_LABELS);
 
 const BAND_SIZES = {
   "<10m": 12,
@@ -251,17 +255,31 @@ function checkedValues(selector) {
   return [...document.querySelectorAll(`${selector}:checked`)].map((el) => el.value);
 }
 
+function selectedBands() {
+  return BAND_ORDER.slice(Number(bandMinEl.value), Number(bandMaxEl.value) + 1);
+}
+
+// Keeps the thumbs from crossing and redraws the highlighted part of the track.
+function updateBandSlider(moved) {
+  let min = Number(bandMinEl.value);
+  let max = Number(bandMaxEl.value);
+  if (min > max) {
+    if (moved === bandMinEl) bandMinEl.value = min = max;
+    else bandMaxEl.value = max = min;
+  }
+  const last = BAND_ORDER.length - 1;
+  bandFillEl.style.left = `calc(8px + (100% - 16px) * ${min / last})`;
+  bandFillEl.style.right = `calc(8px + (100% - 16px) * ${(last - max) / last})`;
+  // With both thumbs at the right end the min thumb must be on top, or it can't be grabbed.
+  bandMinEl.style.zIndex = min === last ? 2 : 0;
+  bandLabelEls.forEach((el, i) => el.classList.toggle("active", i >= min && i <= max));
+}
+
 function render() {
   const tags = checkedValues(".tag");
-  const bands = checkedValues(".band");
-  const showAdjacent = adjacentEl.checked;
+  const bands = selectedBands();
 
-  visible = companies.filter(
-    (c) =>
-      c.tags.some((t) => tags.includes(t)) &&
-      bands.includes(c.revenueBand) &&
-      (showAdjacent || !c.adjacent)
-  );
+  visible = companies.filter((c) => c.tags.some((t) => tags.includes(t)) && bands.includes(c.revenueBand));
 
   markerLayer.clearLayers();
   visible.forEach((c) => markerLayer.addLayer(markers.get(c)));
@@ -293,9 +311,16 @@ document.querySelectorAll(".tag").forEach((el) => {
   );
 });
 
-document.querySelectorAll(".tag, .band, #adjacent").forEach((el) => {
+document.querySelectorAll(".tag").forEach((el) => {
   el.addEventListener("change", render);
 });
+[bandMinEl, bandMaxEl].forEach((el) => {
+  el.addEventListener("input", () => {
+    updateBandSlider(el);
+    render();
+  });
+});
+updateBandSlider();
 showEventsEl.addEventListener("change", renderEvents);
 map.on("zoomend", updateSizes);
 

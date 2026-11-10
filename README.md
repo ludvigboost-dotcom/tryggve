@@ -15,8 +15,7 @@ python -m http.server 8000
 ## Filter
 
 - **Kategori** (Produktionsteknik, AI, Vapen, Flyg, Energi och råvaror): OR-logik. Ett bolag visas om någon av dess taggar är ikryssad. Om alla kategorier är avbockade visas inga bolag.
-- **Årlig omsättning**: intervall, inte exakta siffror. Värdena är uppskattningar.
-- **Visa näraliggande**: döljer bolag med `"adjacent": true` (t.ex. SendCutSend, Xometry, Protolabs) när den är avbockad.
+- **Årlig omsättning**: en slider med två handtag som väljer ett spann av intervall. Inte exakta siffror, värdena är uppskattningar.
 
 ## Lägga till eller ändra bolag
 
@@ -30,7 +29,8 @@ Redigera `data/companies.json`. Varje post ser ut så här:
 
 - `tags`: `production`, `ai`, `weapons`, `aerospace`, `energy`. Första taggen styr markörens färg.
 - `revenueBand`: `<10m`, `10-100m`, `100m-1b` eller `>1b`.
-- `adjacent`: `true` för aktörer som inte är strikt defense.
+- `adjacent`: `true` för aktörer som inte är strikt defense. De får streckad kant och en notering i popupen, men filtreras inte bort.
+- Bolag med flera anläggningar (SpaceX, Boeing) läggs in som en post per anläggning, med namnet `Bolag - Ort`. Omsättningsbandet gäller hela koncernen.
 
 ## Mässor
 

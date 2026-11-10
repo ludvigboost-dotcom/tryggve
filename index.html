@@ -15,7 +15,6 @@
     <section>
       <h2>Kategori <span class="hint">(OR)</span></h2>
       <label><input type="checkbox" class="tag" value="production" checked> Produktionsteknik</label>
-      <label class="sub"><input type="checkbox" id="adjacent" checked> Visa näraliggande (SendCutSend m.fl.)</label>
       <label><input type="checkbox" class="tag" value="ai" checked> AI</label>
       <label><input type="checkbox" class="tag" value="weapons" checked> Vapen</label>
       <label><input type="checkbox" class="tag" value="aerospace" checked> Flyg</label>
@@ -24,10 +23,14 @@
 
     <section>
       <h2>Årlig omsättning <span class="hint">(est.)</span></h2>
-      <label><input type="checkbox" class="band" value="<10m" checked> &lt;$10M</label>
-      <label><input type="checkbox" class="band" value="10-100m" checked> $10–100M</label>
-      <label><input type="checkbox" class="band" value="100m-1b" checked> $100M–1B</label>
-      <label><input type="checkbox" class="band" value=">1b" checked> &gt;$1B</label>
+      <div class="range">
+        <div class="range-fill" id="band-fill"></div>
+        <input type="range" id="band-min" min="0" max="3" step="1" value="0" aria-label="Lägsta omsättning">
+        <input type="range" id="band-max" min="0" max="3" step="1" value="3" aria-label="Högsta omsättning">
+      </div>
+      <div class="range-labels" id="band-labels">
+        <span>&lt;$10M</span><span>$10–100M</span><span>$100M–1B</span><span>&gt;$1B</span>
+      </div>
     </section>
 
     <section>

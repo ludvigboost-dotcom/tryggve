@@ -35,7 +35,59 @@ body {
 .count { font-weight: 600; color: var(--text); }
 
 label { display: block; padding: 3px 0; cursor: pointer; }
-label.sub { padding-left: 22px; font-size: 0.9em; }
+
+/* Two overlapping range inputs form one slider with a min and a max thumb. */
+.range { position: relative; height: 24px; margin: 4px 0; }
+.range::before,
+.range-fill {
+  content: "";
+  position: absolute;
+  top: 10px;
+  height: 4px;
+  border-radius: 2px;
+}
+.range::before { left: 8px; right: 8px; background: var(--border); }
+.range-fill { background: var(--accent); }
+.range input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#band-max { z-index: 1; }
+.range input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+.range input::-moz-range-thumb {
+  pointer-events: auto;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+.range input::-moz-range-track { background: none; }
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.range-labels .active { color: var(--text); font-weight: 600; }
 
 .regions { display: flex; flex-wrap: wrap; gap: 6px; }
 .regions button {
