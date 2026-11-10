@@ -279,7 +279,8 @@ function render() {
   const tags = checkedValues(".tag");
   const bands = selectedBands();
 
-  visible = companies.filter((c) => c.tags.some((t) => tags.includes(t)) && bands.includes(c.revenueBand));
+  // Filter on the primary tag only, since that is the icon shown on the map.
+  visible = companies.filter((c) => tags.includes(c.tags[0]) && bands.includes(c.revenueBand));
 
   markerLayer.clearLayers();
   visible.forEach((c) => markerLayer.addLayer(markers.get(c)));

@@ -14,7 +14,7 @@ python -m http.server 8000
 
 ## Filter
 
-- **Kategori** (Produktionsteknik, AI, Vapen, Flyg, Energi och råvaror): OR-logik. Ett bolag visas om någon av dess taggar är ikryssad. Om alla kategorier är avbockade visas inga bolag.
+- **Kategori** (Produktionsteknik, AI, Vapen, Flyg, Energi och råvaror): filtrerar på bolagets första tagg, den som styr ikon och färg på kartan. Övriga taggar visas i popupen men påverkar inte filtret.
 - **Årlig omsättning**: en slider med två handtag som väljer ett spann av intervall. Inte exakta siffror, värdena är uppskattningar.
 
 ## Lägga till eller ändra bolag
