@@ -3,6 +3,7 @@ const TAG_COLORS = {
   ai: "#3aa17e",
   weapons: "#c8453b",
   aerospace: "#3b7dd8",
+  energy: "#d6559a",
 };
 
 const TAG_LABELS = {
@@ -10,7 +11,34 @@ const TAG_LABELS = {
   ai: "AI",
   weapons: "Vapen",
   aerospace: "Flyg",
+  energy: "Energi och råvaror",
 };
+
+// White glyphs drawn inside the markers, 24x24 viewBox.
+const svg = (body) => `<svg viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
+const TAG_ICONS = {
+  production: svg('<path fill="#fff" d="M2 21V11l5.5 3.5V11l5.5 3.5V4h3.5l1 6H22v11z"/>'),
+  ai: svg(
+    '<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">' +
+      '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="10" y="10" width="4" height="4" fill="#fff" stroke="none"/>' +
+      '<path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></g>'
+  ),
+  weapons: svg(
+    '<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">' +
+      '<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></g>' +
+      '<circle cx="12" cy="12" r="1.8" fill="#fff"/>'
+  ),
+  aerospace: svg(
+    '<path fill="#fff" d="M12 2c1 0 1.6 1 1.6 2.2V9l7.4 4.3v2.2l-7.4-2.2v4.3l2.2 1.6V21L12 20l-3.8 1v-1.8l2.2-1.6v-4.3L3 15.5v-2.2L10.4 9V4.2C10.4 3 11 2 12 2z"/>'
+  ),
+  energy: svg('<path fill="#fff" d="M13.5 2 4 14h7l-1.5 8L19 10h-7z"/>'),
+};
+const EVENT_ICON = svg(
+  '<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">' +
+    '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g>'
+);
+// Below this marker size the glyph is too small to read, so only the colour shows.
+const MIN_ICON_SIZE = 16;
 
 const BAND_LABELS = {
   "<10m": "<$10M",
@@ -37,7 +65,51 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
 
-const POPUP_OPTIONS = { minWidth: 320, maxWidth: 420 };
+const POPUP_OPTIONS = { minWidth: 320, maxWidth: 420, autoPan: false };
+const HOVER_CLOSE_DELAY = 300;
+
+// Opens the popup on hover and keeps it open while the cursor is over the
+// marker or the popup itself, so links inside it can be clicked. A popup
+// opened by clicking (or from the list) stays until closed normally.
+function bindHoverPopup(marker, html) {
+  let closeTimer;
+  let hovering = false;
+  let pinned = false;
+  const cancelClose = () => clearTimeout(closeTimer);
+  const scheduleClose = () => {
+    cancelClose();
+    if (!pinned) closeTimer = setTimeout(() => marker.closePopup(), HOVER_CLOSE_DELAY);
+  };
+
+  marker.bindPopup(html, POPUP_OPTIONS);
+  marker.on("mouseover", () => {
+    hovering = true;
+    cancelClose();
+    marker.openPopup();
+  });
+  marker.on("mouseout", () => {
+    hovering = false;
+    scheduleClose();
+  });
+  marker.on("click", () => {
+    pinned = true;
+    marker.openPopup();
+  });
+  marker.on("popupopen", (e) => {
+    if (!hovering) pinned = true;
+    const el = e.popup.getElement();
+    if (!el.dataset.hoverBound) {
+      el.dataset.hoverBound = "1";
+      el.addEventListener("mouseenter", cancelClose);
+      el.addEventListener("mouseleave", scheduleClose);
+    }
+  });
+  marker.on("popupclose", () => {
+    pinned = false;
+    cancelClose();
+  });
+  return marker;
+}
 map.fitBounds(REGIONS.usa);
 
 const markerLayer = L.layerGroup().addTo(map);
@@ -60,11 +132,12 @@ let visible = [];
 const markers = new Map();
 
 function createIcon(company, size) {
-  const color = TAG_COLORS[company.tags[0]];
+  const tag = company.tags[0];
   const adjacent = company.adjacent ? " adjacent" : "";
+  const icon = size >= MIN_ICON_SIZE ? TAG_ICONS[tag] : "";
   return L.divIcon({
     className: "",
-    html: `<div class="marker${adjacent}" style="background:${color};width:${size}px;height:${size}px"></div>`,
+    html: `<div class="marker${adjacent}" style="background:${TAG_COLORS[tag]};width:${size}px;height:${size}px">${icon}</div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -108,9 +181,9 @@ function formatDates(event) {
 function createEventIcon() {
   return L.divIcon({
     className: "",
-    html: '<div class="event-marker"></div>',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
+    html: `<div class="event-marker">${EVENT_ICON}</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
   });
 }
 
@@ -212,6 +285,14 @@ document.querySelectorAll("[data-region]").forEach((button) => {
   button.addEventListener("click", () => map.fitBounds(REGIONS[button.dataset.region]));
 });
 
+// The category checkboxes double as the map legend.
+document.querySelectorAll(".tag").forEach((el) => {
+  el.insertAdjacentHTML(
+    "afterend",
+    `<span class="marker legend" style="background:${TAG_COLORS[el.value]}">${TAG_ICONS[el.value]}</span>`
+  );
+});
+
 document.querySelectorAll(".tag, .band, #adjacent").forEach((el) => {
   el.addEventListener("change", render);
 });
@@ -223,9 +304,10 @@ fetch("data/events.json")
   .then((data) => {
     events = data.sort((a, b) => (a.startDate || "9999").localeCompare(b.startDate || "9999"));
     events.forEach((e) => {
-      const marker = L.marker([e.lat, e.lng], { icon: createEventIcon(), zIndexOffset: 1000 })
-        .bindTooltip(createEventPopup(e), { direction: "top", className: "info-tooltip" })
-        .bindPopup(createEventPopup(e), POPUP_OPTIONS);
+      const marker = bindHoverPopup(
+        L.marker([e.lat, e.lng], { icon: createEventIcon(), zIndexOffset: 1000 }),
+        createEventPopup(e)
+      );
       eventMarkers.set(e, marker);
     });
     renderEvents();
@@ -239,9 +321,10 @@ fetch("data/companies.json")
   .then((data) => {
     companies = data;
     companies.forEach((c) => {
-      const marker = L.marker([c.lat, c.lng], { icon: createIcon(c, BAND_SIZES[c.revenueBand]) })
-        .bindTooltip(createPopup(c), { direction: "top", className: "info-tooltip" })
-        .bindPopup(createPopup(c), POPUP_OPTIONS);
+      const marker = bindHoverPopup(
+        L.marker([c.lat, c.lng], { icon: createIcon(c, BAND_SIZES[c.revenueBand]) }),
+        createPopup(c)
+      );
       markers.set(c, marker);
     });
     render();

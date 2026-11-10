@@ -14,7 +14,7 @@ python -m http.server 8000
 
 ## Filter
 
-- **Kategori** (Produktionsteknik, AI, Vapen, Flyg): OR-logik. Ett bolag visas om någon av dess taggar är ikryssad. Om alla kategorier är avbockade visas inga bolag.
+- **Kategori** (Produktionsteknik, AI, Vapen, Flyg, Energi och råvaror): OR-logik. Ett bolag visas om någon av dess taggar är ikryssad. Om alla kategorier är avbockade visas inga bolag.
 - **Årlig omsättning**: intervall, inte exakta siffror. Värdena är uppskattningar.
 - **Visa näraliggande**: döljer bolag med `"adjacent": true` (t.ex. SendCutSend, Xometry, Protolabs) när den är avbockad.
 
@@ -28,7 +28,7 @@ Redigera `data/companies.json`. Varje post ser ut så här:
   "description": "Kort beskrivning.", "url": "https://example.com" }
 ```
 
-- `tags`: `production`, `ai`, `weapons`, `aerospace`. Första taggen styr markörens färg.
+- `tags`: `production`, `ai`, `weapons`, `aerospace`, `energy`. Första taggen styr markörens färg.
 - `revenueBand`: `<10m`, `10-100m`, `100m-1b` eller `>1b`.
 - `adjacent`: `true` för aktörer som inte är strikt defense.
 
